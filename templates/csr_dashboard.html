@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}CSR Super Admin Dashboard{% endblock %}
+{% block extra_css %}
+<style>
+.csr-container{max-width:1600px;margin:0 auto}.csr-header{background:linear-gradient(135deg,#1e3a8a 0%,#3b82f6 100%);color:#fff;border-radius:15px;padding:40px;margin-bottom:30px;box-shadow:0 8px 30px rgba(0,0,0,.3)}.csr-title{font-size:2.5rem;margin-bottom:10px;font-weight:700}.csr-badge{background:#fbbf24;color:#78350f;padding:8px 20px;border-radius:25px;font-weight:700;font-size:1rem;margin-left:15px}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px}.stat-card{background:#fff;border-radius:12px;padding:25px;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:transform .2s}.stat-card:hover{transform:translateY(-5px)}.stat-icon{font-size:2.5rem;margin-bottom:10px}.stat-value{font-size:2.5rem;font-weight:700;color:#1e3a8a;margin-bottom:5px}.stat-label{color:#666;font-size:.95rem}.section{background:#fff;border-radius:15px;padding:30px;margin-bottom:30px;box-shadow:0 4px 15px rgba(0,0,0,.1)}.section-title{color:#1e3a8a;font-size:1.5rem;margin-bottom:20px;font-weight:700;padding-bottom:15px;border-bottom:3px solid #e5e7eb}.chart-container{position:relative;height:300px;margin-top:20px}.library-table{width:100%;border-collapse:collapse;margin-top:20px}.library-table th{background:#f9fafb;padding:12px;text-align:left;font-weight:600;color:#333;border-bottom:2px solid #e5e7eb}.library-table td{padding:12px;border-bottom:1px solid #e5e7eb}.library-table tr:hover{background:#f9fafb}.utilization-bar{height:25px;background:#e5e7eb;border-radius:12px;overflow:hidden;position:relative}.utilization-fill{height:100%;background:linear-gradient(90deg,#10b981 0%,#059669 100%);transition:width .3s;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:.85rem}.btn{padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;transition:all .3s;display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer}.btn-primary{background:#3b82f6;color:#fff}.btn-primary:hover{background:#1e3a8a}.btn-success{background:#10b981;color:#fff}.btn-success:hover{background:#059669}.actions{display:flex;gap:10px;margin-top:20px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="csr-container">
+<div class="csr-header">
+<h1 class="csr-title">🌐 CSR Super Admin Dashboard<span class="csr-badge">SUPER ADMIN</span></h1>
+<p style="font-size:1.2rem;opacity:.9">Network-Wide Analytics & Management</p>
+</div>
+<div class="stats-grid">
+<div class="stat-card">
+<div class="stat-icon">🏢</div>
+<div class="stat-value">{{summary.total_libraries}}</div>
+<div class="stat-label">Total Libraries</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">💺</div>
+<div class="stat-value">{{summary.total_seats}}</div>
+<div class="stat-label">Total Seats</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">👥</div>
+<div class="stat-value">{{summary.total_users}}</div>
+<div class="stat-label">Registered Users</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">📚</div>
+<div class="stat-value">{{summary.total_bookings}}</div>
+<div class="stat-label">Total Bookings</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon">✅</div>
+<div class="stat-value">{{summary.active_bookings}}</div>
+<div class="stat-label">Active Bookings</div>
+</div>
+</div>
+<div class="section">
+<h2 class="section-title">📊 Library Utilization (Last 30 Days)</h2>
+<table class="library-table">
+<thead>
+<tr><th>Library</th><th>Location</th><th>Seats</th><th>Bookings</th><th>Utilization</th><th>Actions</th></tr>
+</thead>
+<tbody>
+{% for lib in utilization %}
+<tr>
+<td><strong>{{lib.library_name}}</strong></td>
+<td>{{lib.city}}, {{lib.state}}</td>
+<td>{{lib.total_seats}}</td>
+<td>{{lib.total_bookings}}</td>
+<td>
+<div class="utilization-bar">
+<div class="utilization-fill" style="width:{{lib.utilization_percent}}%">{{lib.utilization_percent}}%</div>
+</div>
+</td>
+<td><a href="/admin/{{lib.library_slug}}" class="btn btn-primary" style="font-size:.85rem;padding:6px 12px">Manage</a></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<div class="section">
+<h2 class="section-title">📈 Network Booking Trends</h2>
+<canvas id="trendChart" style="max-height:300px"></canvas>
+</div>
+<div class="actions">
+<a href="{{url_for('csr_admin.manage_libraries')}}" class="btn btn-primary">🏢 Manage All Libraries</a>
+<a href="{{url_for('csr_admin.create_library')}}" class="btn btn-success">➕ Create New Library</a>
+<a href="{{url_for('csr_admin.gallery_approvals')}}" class="btn btn-primary" style="position:relative">
+    🖼️ Gallery Approvals
+    {% if pending_gallery_count > 0 %}
+    <span style="position:absolute;top:-8px;right:-8px;background:#ef4444;color:#fff;padding:4px 8px;border-radius:10px;font-size:.75rem;font-weight:700;min-width:20px;text-align:center">{{ pending_gallery_count }}</span>
+    {% endif %}
+</a>
+<a href="{{url_for('csr_admin.analytics')}}" class="btn btn-primary">📊 Detailed Analytics</a>
+<a href="{{url_for('csr_admin.export_bookings')}}" class="btn btn-primary">📥 Export Bookings</a>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx=document.getElementById('trendChart');
+new Chart(ctx,{type:'line',data:{labels:{{daily_trends|map(attribute='date')|list|tojson}},datasets:[{label:'Daily Bookings',data:{{daily_trends|map(attribute='count')|list|tojson}},borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.1)',tension:.4,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true}}}});
+</script>
+{% endblock %}

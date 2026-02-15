@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Manage Seats - {{ library.name }}{% endblock %}
+{% block content %}
+<div style="max-width: 1400px; margin: 0 auto;">
+    <div style="background: white; border-radius: 15px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <h1 style="color: #2d5016; font-size: 2rem; margin-bottom: 20px;">💺 Manage Seats</h1>
+        <p style="color: #666;">Toggle maintenance status for seats</p>
+    </div>
+    
+    <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+            {% for seat in seats %}
+            <div style="background: {% if seat.in_maintenance %}#fee2e2{% else %}#d1fae5{% endif %}; padding: 20px; border-radius: 10px; border-left: 4px solid {% if seat.in_maintenance %}#dc2626{% else %}#10b981{% endif %};">
+                <div style="font-size: 1.5rem; font-weight: 700; color: #333; margin-bottom: 10px;">
+                    Seat {{ seat.number }}
+                </div>
+                <div style="margin-bottom: 10px; color: #666;">
+                    Category: {{ seat.category.value.title() }}<br>
+                    Bookings: {{ seat_stats.get(seat.id, 0) }}
+                </div>
+                <form method="POST" action="{{ url_for('admin.toggle_maintenance', slug=library.slug, seat_id=seat.id) }}">
+                    <button type="submit" style="width: 100%; padding: 10px; background: {% if seat.in_maintenance %}#10b981{% else %}#ef4444{% endif %}; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        {% if seat.in_maintenance %}✓ Mark Available{% else %}🔧 Set Maintenance{% endif %}
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

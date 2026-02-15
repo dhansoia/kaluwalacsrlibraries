@@ -1,0 +1,153 @@
+{% extends "base_public.html" %}
+{% block title %}Kaluwala CSR Libraries Network - Quality Library Services{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+.hero{background:linear-gradient(135deg,#2d5016 0%,#4a7c2c 100%);color:#fff;padding:80px 20px;text-align:center}.hero-title{font-size:3.5rem;font-weight:700;margin-bottom:20px;text-shadow:2px 2px 4px rgba(0,0,0,.3)}@media(max-width:768px){.hero-title{font-size:2.5rem}}.hero-subtitle{font-size:1.3rem;opacity:.95;margin-bottom:30px}.hero-stats{display:flex;justify-content:center;gap:40px;margin-top:40px;flex-wrap:wrap}.stat-box{text-align:center}.stat-number{font-size:2.5rem;font-weight:700;display:block}.stat-label{font-size:.9rem;opacity:.9;margin-top:5px}.search-bar{max-width:600px;margin:30px auto 0}.search-input{padding:15px 20px;border-radius:50px;border:none;width:100%;font-size:1.1rem;box-shadow:0 4px 15px rgba(0,0,0,.2)}.library-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:25px;margin:40px 0}.library-card{background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:all .3s;cursor:pointer}.library-card:hover{transform:translateY(-10px);box-shadow:0 8px 30px rgba(0,0,0,.2)}.library-image{height:200px;background-size:cover;background-position:center;position:relative}.library-badge{position:absolute;top:15px;right:15px;background:rgba(255,255,255,.95);padding:8px 15px;border-radius:20px;font-weight:600;font-size:.85rem;color:#2d5016}.library-content{padding:25px}.library-name{font-size:1.4rem;font-weight:700;color:#2d5016;margin-bottom:10px}.library-info{color:#666;margin:8px 0;font-size:.95rem;display:flex;align-items:center;gap:8px}.library-footer{display:flex;gap:10px;margin-top:20px}.btn-book{flex:1;padding:12px;background:#4a7c2c;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:all .3s}.btn-book:hover{background:#2d5016}.btn-info{flex:1;padding:12px;background:#e5e7eb;color:#333;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:all .3s}.btn-info:hover{background:#d1d5db}#map{height:500px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,.1);margin-top:30px}.section-title{font-size:2.5rem;font-weight:700;color:#2d5016;margin-bottom:30px;text-align:center}.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:30px;margin:40px 0}.feature-box{text-align:center;padding:30px;background:#f9fafb;border-radius:15px;transition:all .3s}.feature-box:hover{background:#e5f5eb;transform:translateY(-5px)}.feature-icon{font-size:3rem;margin-bottom:15px}.feature-title{font-size:1.2rem;font-weight:700;color:#2d5016;margin-bottom:10px}.feature-text{color:#666;line-height:1.6}
+</style>
+{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<div class="hero">
+<h1 class="hero-title">🏛️ Kaluwala CSR Libraries Network</h1>
+<p class="hero-subtitle">Empowering Communities Through Quality Library Services</p>
+<div class="hero-stats">
+<div class="stat-box">
+<span class="stat-number">{{ total_libraries }}</span>
+<span class="stat-label">Libraries</span>
+</div>
+<div class="stat-box">
+<span class="stat-number">{{ total_seats }}</span>
+<span class="stat-label">Total Seats</span>
+</div>
+<div class="stat-box">
+<span class="stat-number">{{ total_users }}</span>
+<span class="stat-label">Active Users</span>
+</div>
+</div>
+<div class="search-bar">
+<input type="text" id="searchInput" class="search-input" placeholder="🔍 Search libraries by name or city...">
+</div>
+</div>
+
+<div class="container" style="max-width:1400px;margin:0 auto;padding:40px 20px">
+
+<!-- Features Section -->
+<h2 class="section-title">Why Choose Our Libraries?</h2>
+<div class="features">
+<div class="feature-box">
+<div class="feature-icon">📚</div>
+<h3 class="feature-title">Extensive Collections</h3>
+<p class="feature-text">Access to thousands of books, journals, and digital resources</p>
+</div>
+<div class="feature-box">
+<div class="feature-icon">💺</div>
+<h3 class="feature-title">Reserved Seating</h3>
+<p class="feature-text">Book your seat online and guarantee your study space</p>
+</div>
+<div class="feature-box">
+<div class="feature-icon">📱</div>
+<h3 class="feature-title">Online Booking</h3>
+<p class="feature-text">Easy online reservation system with instant confirmation</p>
+</div>
+<div class="feature-box">
+<div class="feature-icon">🕐</div>
+<h3 class="feature-title">Flexible Hours</h3>
+<p class="feature-text">Extended operating hours to fit your schedule</p>
+</div>
+</div>
+
+<!-- Library Cards -->
+<h2 class="section-title" style="margin-top:60px">Our Libraries</h2>
+<div class="library-cards" id="libraryCards">
+{% for library in libraries %}
+<div class="library-card" data-name="{{ library.name.lower() }}" data-city="{{ library.city.lower() }}">
+<div class="library-image" style="background-image:linear-gradient(135deg,#2d5016aa,#4a7c2caa),url('{% if library.logo_path %}/{{ library.logo_path }}{% else %}/static/images/library-default.jpg{% endif %}')">
+<span class="library-badge">{{ library.city }}</span>
+</div>
+<div class="library-content">
+<h3 class="library-name">{{ library.name }}</h3>
+<div class="library-info">
+<span>📍</span>
+<span>{{ library.address }}</span>
+</div>
+<div class="library-info">
+<span>💺</span>
+<span>{{ library.total_seats }} Seats Available</span>
+</div>
+<div class="library-info">
+<span>🕐</span>
+<span>{{ library.settings.opening_time.strftime('%I:%M %p') }} - {{ library.settings.closing_time.strftime('%I:%M %p') }}</span>
+</div>
+<div class="library-footer">
+<button class="btn-book" onclick="window.location.href='/libraries/{{ library.slug }}'">
+View Details
+</button>
+<button class="btn-info" onclick="window.location.href='/{{ library.slug }}/dashboard'">
+Book Now
+</button>
+</div>
+</div>
+</div>
+{% endfor %}
+</div>
+
+<!-- Map Section -->
+<h2 class="section-title" style="margin-top:60px">Find Us on Map</h2>
+<div id="map"></div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    const search = e.target.value.toLowerCase();
+    const cards = document.querySelectorAll('.library-card');
+    
+    cards.forEach(card => {
+        const name = card.dataset.name;
+        const city = card.dataset.city;
+        
+        if (name.includes(search) || city.includes(search)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+
+// Initialize map
+const map = L.map('map').setView([29.0, 77.0], 7);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18
+}).addTo(map);
+
+// Add markers for libraries
+const libraries = [
+    {% for library in libraries %}
+    {
+        name: "{{ library.name }}",
+        lat: {{ library.latitude if library.latitude else 28.7041 }},
+        lng: {{ library.longitude if library.longitude else 77.1025 }},
+        address: "{{ library.address }}",
+        city: "{{ library.city }}",
+        slug: "{{ library.slug }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+libraries.forEach(lib => {
+    const marker = L.marker([lib.lat, lib.lng]).addTo(map);
+    marker.bindPopup(`
+        <div style="text-align:center;padding:10px">
+            <strong style="font-size:1.1rem;color:#2d5016">${lib.name}</strong><br>
+            <span style="color:#666">${lib.address}, ${lib.city}</span><br>
+            <a href="/libraries/${lib.slug}" style="display:inline-block;margin-top:10px;padding:8px 15px;background:#4a7c2c;color:#fff;text-decoration:none;border-radius:5px">View Details</a>
+        </div>
+    `);
+});
+</script>
+{% endblock %}

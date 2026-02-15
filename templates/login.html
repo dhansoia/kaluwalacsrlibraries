@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Kaluwala CSR Libraries{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Notification Bar */
+    .notification-bar {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        color: white;
+        padding: 12px 0;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .notification-content {
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        animation: marquee 30s linear infinite;
+    }
+    
+    .notification-content:hover {
+        animation-play-state: paused;
+    }
+    
+    .notification-item {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 100px;
+        font-weight: 500;
+        font-size: 1rem;
+    }
+    
+    .notification-icon {
+        font-size: 1.3rem;
+        margin-right: 10px;
+    }
+    
+    @keyframes marquee {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+    
+    .auth-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .auth-card {
+        background: white;
+        border-radius: 20px;
+        padding: 50px 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 500px;
+        width: 100%;
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .auth-logo {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        margin-bottom: 20px;
+    }
+    
+    .auth-logo-placeholder {
+        width: 100px;
+        height: 100px;
+        background: #f3f4f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 3rem;
+    }
+    
+    .auth-title {
+        color: #2d5016;
+        font-size: 2rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+    
+    .auth-subtitle {
+        color: #666;
+        font-size: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        display: block;
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+    
+    .form-input,
+    .form-select {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        font-family: inherit;
+    }
+    
+    .form-input:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: #4a7c2c;
+        box-shadow: 0 0 0 3px rgba(74, 124, 44, 0.1);
+    }
+    
+    .form-input::placeholder {
+        color: #9ca3af;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #4a7c2c 0%, #2d5016 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-top: 10px;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(74, 124, 44, 0.3);
+    }
+    
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 25px;
+        border-top: 2px solid #e5e7eb;
+    }
+    
+    .auth-footer a {
+        color: #4a7c2c;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    .library-info {
+        background: #f9fafb;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    @media (max-width: 600px) {
+        .auth-card {
+            padding: 40px 30px;
+        }
+        
+        .auth-title {
+            font-size: 1.6rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Notification/Marquee Bar -->
+<div class="notification-bar">
+    <div class="notification-content">
+        <!-- Notifications repeat twice for seamless loop -->
+        <span class="notification-item">
+            <span class="notification-icon">📢</span>
+            Welcome to Kaluwala CSR Libraries Network
+        </span>
+        <span class="notification-item">
+            <span class="notification-icon">🎓</span>
+            Register today and get access to library seats across all locations
+        </span>
+        <span class="notification-item">
+            <span class="notification-icon">⏰</span>
+            Library Hours: 8:00 AM - 8:00 PM (Monday to Saturday)
+        </span>
+        <span class="notification-item">
+            <span class="notification-icon">📚</span>
+            Book your seat in advance and ensure your study spot
+        </span>
+        <span class="notification-item">
+            <span class="notification-icon">✨</span>
+            New users require admin approval before booking
+        </span>
+        <!-- Duplicate for seamless scrolling -->
+        <span class="notification-item">
+            <span class="notification-icon">📢</span>
+            Welcome to Kaluwala CSR Libraries Network
+        </span>
+        <span class="notification-item">
+            <span class="notification-icon">🎓</span>
+            Register today and get access to library seats across all locations
+        </span>
+        <span class="notification-item">
+            <span class="notification-icon">⏰</span>
+            Library Hours: 8:00 AM - 8:00 PM (Monday to Saturday)
+        </span>
+        <span class="notification-item">
+            <span class="notification-icon">📚</span>
+            Book your seat in advance and ensure your study spot
+        </span>
+        <span class="notification-item">
+            <span class="notification-icon">✨</span>
+            New users require admin approval before booking
+        </span>
+    </div>
+</div>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="/static/kaluwala_logo.jpg" alt="Kaluwala Logo" class="auth-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="auth-logo-placeholder" style="display: none;">🔐</div>
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">Sign in to access your library account</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-input" 
+                    placeholder="Enter your username"
+                    required
+                    autocomplete="username"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="library_slug" class="form-label">Select Library (Optional for CSR Admins)</label>
+                <select 
+                    id="library_slug" 
+                    name="library_slug" 
+                    class="form-select"
+                    onchange="updateLibraryInfo()"
+                >
+                    <option value="">-- Choose a library (optional) --</option>
+                    {% for library in libraries %}
+                    <option value="{{ library.slug }}" 
+                            data-name="{{ library.name }}"
+                            data-city="{{ library.city }}"
+                            data-state="{{ library.state }}">
+                        {{ library.name }} - {{ library.city }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <div id="library-info" class="library-info" style="display: none;">
+                    <strong id="library-name"></strong><br>
+                    <span id="library-location"></span>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-primary">Sign In</button>
+        </form>
+        
+        <div class="auth-footer">
+            Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateLibraryInfo() {
+    const select = document.getElementById('library_slug');
+    const infoDiv = document.getElementById('library-info');
+    const option = select.options[select.selectedIndex];
+    
+    if (option.value) {
+        document.getElementById('library-name').textContent = option.dataset.name;
+        document.getElementById('library-location').textContent = option.dataset.city + ', ' + option.dataset.state;
+        infoDiv.style.display = 'block';
+    } else {
+        infoDiv.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

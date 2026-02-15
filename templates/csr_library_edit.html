@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Edit Library - {{ library.name }}{% endblock %}
+{% block extra_css %}
+<style>
+.edit-container{max-width:800px;margin:0 auto}.edit-header{background:#fff;border-radius:15px;padding:30px;margin-bottom:30px;box-shadow:0 4px 15px rgba(0,0,0,.1)}.edit-title{color:#1e3a8a;font-size:2rem;margin-bottom:10px;font-weight:700}.form-section{background:#fff;border-radius:15px;padding:30px;box-shadow:0 4px 15px rgba(0,0,0,.1)}.form-group{margin-bottom:20px}.form-label{display:block;font-weight:600;margin-bottom:8px;color:#333}.form-input{width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px;font-size:1rem}.form-input:focus{outline:none;border-color:#3b82f6}.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}.btn{padding:12px 24px;border-radius:8px;font-weight:600;border:none;cursor:pointer;transition:all .3s}.btn-primary{background:#3b82f6;color:#fff}.btn-primary:hover{background:#1e3a8a}.btn-secondary{background:#e5e7eb;color:#333;text-decoration:none;display:inline-block}.btn-secondary:hover{background:#d1d5db}.actions{display:flex;gap:10px;margin-top:30px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="edit-container">
+<div class="edit-header">
+<a href="/csr-admin/libraries" class="btn btn-secondary" style="margin-bottom:15px">← Back to Libraries</a>
+<h1 class="edit-title">✏️ Edit Library Details</h1>
+<p style="color:#666">Update information for {{ library.name }}</p>
+</div>
+<div class="form-section">
+<form method="POST">
+<div class="form-group">
+<label class="form-label">Library Name *</label>
+<input type="text" name="name" value="{{ library.name }}" required class="form-input">
+</div>
+<div class="form-group">
+<label class="form-label">Address *</label>
+<input type="text" name="address" value="{{ library.address }}" required class="form-input">
+</div>
+<div class="form-grid">
+<div class="form-group">
+<label class="form-label">City *</label>
+<input type="text" name="city" value="{{ library.city }}" required class="form-input">
+</div>
+<div class="form-group">
+<label class="form-label">State *</label>
+<input type="text" name="state" value="{{ library.state }}" required class="form-input">
+</div>
+<div class="form-group">
+<label class="form-label">Pincode *</label>
+<input type="text" name="pincode" value="{{ library.pincode }}" required class="form-input">
+</div>
+</div>
+<div class="form-grid">
+<div class="form-group">
+<label class="form-label">Contact Email</label>
+<input type="email" name="contact_email" value="{{ library.contact_email or '' }}" class="form-input">
+</div>
+<div class="form-group">
+<label class="form-label">Contact Phone</label>
+<input type="text" name="contact_phone" value="{{ library.contact_phone or '' }}" class="form-input">
+</div>
+</div>
+<div class="form-group">
+<label class="form-label">CSR Partner</label>
+<input type="text" name="csr_partner" value="{{ library.csr_partner or 'Kaluwala Constructions Pvt Ltd' }}" class="form-input">
+</div>
+<div class="actions">
+<button type="submit" class="btn btn-primary">💾 Save Changes</button>
+<a href="/csr-admin/libraries" class="btn btn-secondary">Cancel</a>
+</div>
+</form>
+</div>
+</div>
+{% endblock %}

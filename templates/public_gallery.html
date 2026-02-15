@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Photo Gallery - Kaluwala Libraries{% endblock %}
+{% block extra_css %}
+<style>
+.gallery-hero{background:linear-gradient(135deg,#2d5016 0%,#4a7c2c 100%);color:#fff;padding:60px 20px;text-align:center;margin-bottom:40px;border-radius:15px}.gallery-title{font-size:3rem;font-weight:700;margin-bottom:15px}.gallery-subtitle{font-size:1.2rem;opacity:.9}.filter-bar{max-width:1400px;margin:0 auto 30px;padding:0 20px}.filter-select{padding:12px 20px;border:2px solid #e5e7eb;border-radius:10px;font-size:1rem;min-width:250px;cursor:pointer}.image-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:25px;max-width:1400px;margin:0 auto;padding:0 20px 60px}.image-card{background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:transform .3s,box-shadow .3s}.image-card:hover{transform:translateY(-8px);box-shadow:0 8px 30px rgba(0,0,0,.2)}.image-preview{width:100%;height:250px;object-fit:cover;cursor:pointer;transition:transform .3s}.image-preview:hover{transform:scale(1.05)}.image-info{padding:20px}.image-caption{font-size:1.2rem;font-weight:700;color:#2d5016;margin-bottom:10px;line-height:1.4}.image-description{color:#666;line-height:1.6;margin-bottom:15px}.image-meta{font-size:.85rem;color:#999;margin-bottom:5px;display:flex;align-items:center;gap:5px}.library-badge{display:inline-block;background:#e0f2fe;color:#0369a1;padding:6px 12px;border-radius:8px;font-weight:600;font-size:.85rem;margin-bottom:10px}.empty-state{text-align:center;padding:100px 20px;background:#fff;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,.1);margin:20px}.empty-icon{font-size:5rem;margin-bottom:20px}.lightbox{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.95);z-index:1000;align-items:center;justify-content:center}.lightbox.active{display:flex}.lightbox img{max-width:90%;max-height:90%;border-radius:10px;box-shadow:0 10px 50px rgba(0,0,0,.5)}.lightbox-close{position:absolute;top:30px;right:40px;color:#fff;font-size:3rem;cursor:pointer;z-index:1001;transition:transform .2s}.lightbox-close:hover{transform:scale(1.2)}.lightbox-caption{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:15px 30px;border-radius:10px;max-width:80%;text-align:center}
+</style>
+{% endblock %}
+{% block content %}
+<div class="gallery-hero">
+<h1 class="gallery-title">📸 Photo Gallery</h1>
+<p class="gallery-subtitle">Moments from Our Library Network</p>
+</div>
+
+<div class="filter-bar">
+<form method="GET" style="display:flex;justify-content:center;gap:15px;flex-wrap:wrap">
+<select name="library" class="filter-select" onchange="this.form.submit()">
+<option value="">🌐 All Libraries</option>
+{% for lib in libraries %}
+<option value="{{ lib.id }}" {% if selected_library == lib.id %}selected{% endif %}>
+{{ lib.name }} - {{ lib.city }}
+</option>
+{% endfor %}
+</select>
+{% if selected_library %}
+<a href="/gallery" class="filter-select" style="background:#ef4444;color:#fff;border-color:#ef4444;text-decoration:none;display:inline-block">
+Clear Filter
+</a>
+{% endif %}
+</form>
+</div>
+
+{% if images %}
+<div style="text-align:center;margin-bottom:30px;color:#666">
+<p>Showing {{ images|length }} photo(s)</p>
+</div>
+
+<div class="image-grid">
+{% for image in images %}
+<div class="image-card">
+<img src="/{{ image.file_path }}" alt="{{ image.caption }}" class="image-preview" onclick="openLightbox('/{{ image.file_path }}', '{{ image.caption|replace("'", "\\'") }}')">
+<div class="image-info">
+<span class="library-badge">📚 {{ image.library.name }}</span>
+<div class="image-caption">{{ image.caption }}</div>
+{% if image.description %}
+<div class="image-description">{{ image.description }}</div>
+{% endif %}
+<div class="image-meta">📅 {{ image.uploaded_at.strftime('%B %d, %Y') }}</div>
+<div class="image-meta">📍 {{ image.library.city }}, {{ image.library.state }}</div>
+</div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+<div class="empty-icon">📷</div>
+<h2 style="color:#2d5016;font-size:2rem;margin-bottom:15px">
+{% if selected_library %}
+No Photos from This Library Yet
+{% else %}
+No Photos Yet
+{% endif %}
+</h2>
+<p style="color:#666;font-size:1.1rem;margin-bottom:20px">
+Check back soon for updates from our libraries!
+</p>
+{% if selected_library %}
+<a href="/gallery" style="padding:12px 24px;background:#4a7c2c;color:#fff;border-radius:8px;text-decoration:none;display:inline-block">
+View All Libraries
+</a>
+{% endif %}
+</div>
+{% endif %}
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+<span class="lightbox-close">&times;</span>
+<img src="" id="lightboxImage" onclick="event.stopPropagation()">
+<div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+<script>
+function openLightbox(src, caption) {
+    document.getElementById('lightboxImage').src = src;
+    document.getElementById('lightboxCaption').textContent = caption;
+    document.getElementById('lightbox').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+});
+</script>
+{% endblock %}

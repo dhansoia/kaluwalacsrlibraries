@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings - {{ current_library.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bookings-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .bookings-header {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .bookings-title {
+        color: #2d5016;
+        font-size: 2rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+    
+    .section {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+        color: #2d5016;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        font-weight: 700;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .booking-card {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border-left: 5px solid #4a7c2c;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .booking-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .booking-card.cancelled {
+        border-left-color: #ef4444;
+        opacity: 0.8;
+    }
+    
+    .booking-card.completed {
+        border-left-color: #6b7280;
+        opacity: 0.8;
+    }
+    
+    .booking-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .booking-main-info {
+        flex: 1;
+    }
+    
+    .seat-number-large {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d5016;
+        margin-bottom: 5px;
+    }
+    
+    .booking-date-time {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 5px;
+    }
+    
+    .booking-status {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .booking-status.booked {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .booking-status.cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .booking-status.completed {
+        background: #e5e7eb;
+        color: #374151;
+    }
+    
+    .booking-details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid #e5e7eb;
+    }
+    
+    .detail-box {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .detail-label {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 4px;
+    }
+    
+    .detail-value {
+        font-weight: 600;
+        color: #333;
+        font-size: 1rem;
+    }
+    
+    .booking-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid #e5e7eb;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-cancel {
+        background: #ef4444;
+        color: white;
+    }
+    
+    .btn-cancel:hover {
+        background: #dc2626;
+    }
+    
+    .btn-disabled {
+        background: #e5e7eb;
+        color: #9ca3af;
+        cursor: not-allowed;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+    }
+    
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+    
+    .empty-title {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    
+    .empty-text {
+        font-size: 1.1rem;
+        margin-bottom: 25px;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #4a7c2c 0%, #2d5016 100%);
+        color: white;
+        padding: 14px 28px;
+        font-size: 1.1rem;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(74, 124, 44, 0.3);
+    }
+    
+    .category-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #fef3c7;
+        color: #92400e;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    
+    @media (max-width: 768px) {
+        .booking-header-row {
+            flex-direction: column;
+        }
+        
+        .booking-details-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .booking-actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bookings-container">
+    <div class="bookings-header">
+        <h1 class="bookings-title">📚 My Bookings</h1>
+        <p style="color: #666; font-size: 1.1rem;">View and manage your seat reservations</p>
+    </div>
+    
+    <!-- Upcoming Bookings -->
+    <div class="section">
+        <h2 class="section-title">
+            <span>🎫</span>
+            <span>Upcoming Bookings</span>
+        </h2>
+        
+        {% if upcoming_bookings %}
+            {% for booking in upcoming_bookings %}
+            <div class="booking-card">
+                <div class="booking-header-row">
+                    <div class="booking-main-info">
+                        <div class="seat-number-large">
+                            Seat {{ booking.seat.number }}
+                            {% if booking.seat.category.value == 'reserved' %}
+                            <span class="category-badge">Reserved</span>
+                            {% endif %}
+                        </div>
+                        <div class="booking-date-time">
+                            📅 {{ booking.date.strftime('%A, %B %d, %Y') }}
+                        </div>
+                        <div class="booking-date-time">
+                            ⏰ {{ booking.time_slot.strftime('%I:%M %p') }}
+                        </div>
+                    </div>
+                    <div>
+                        <span class="booking-status booked">Active</span>
+                    </div>
+                </div>
+                
+                <div class="booking-details-grid">
+                    <div class="detail-box">
+                        <span class="detail-label">Library</span>
+                        <span class="detail-value">{{ booking.library.name }}</span>
+                    </div>
+                    <div class="detail-box">
+                        <span class="detail-label">Booked On</span>
+                        <span class="detail-value">{{ booking.created_at.strftime('%b %d, %Y') }}</span>
+                    </div>
+                    <div class="detail-box">
+                        <span class="detail-label">Booking ID</span>
+                        <span class="detail-value">#{{ booking.id }}</span>
+                    </div>
+                    <div class="detail-box">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value">{{ booking.status.value.title() }}</span>
+                    </div>
+                </div>
+                
+                <div class="booking-actions">
+                    <form method="POST" action="{{ url_for('cancel_booking', booking_id=booking.id) }}" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                        <button type="submit" class="btn btn-cancel">
+                            ❌ Cancel Booking
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <div class="empty-title">No Upcoming Bookings</div>
+                <div class="empty-text">You don't have any active bookings at the moment</div>
+                <a href="{{ url_for('seats', slug=current_library.slug) }}" class="btn btn-primary">
+                    📅 Book a Seat Now
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Past Bookings -->
+    <div class="section">
+        <h2 class="section-title">
+            <span>📜</span>
+            <span>Booking History</span>
+        </h2>
+        
+        {% if past_bookings %}
+            {% for booking in past_bookings %}
+            <div class="booking-card {% if booking.status.value == 'cancelled' %}cancelled{% elif booking.status.value == 'completed' %}completed{% endif %}">
+                <div class="booking-header-row">
+                    <div class="booking-main-info">
+                        <div class="seat-number-large">
+                            Seat {{ booking.seat.number }}
+                            {% if booking.seat.category.value == 'reserved' %}
+                            <span class="category-badge">Reserved</span>
+                            {% endif %}
+                        </div>
+                        <div class="booking-date-time">
+                            📅 {{ booking.date.strftime('%A, %B %d, %Y') }}
+                        </div>
+                        <div class="booking-date-time">
+                            ⏰ {{ booking.time_slot.strftime('%I:%M %p') }}
+                        </div>
+                    </div>
+                    <div>
+                        <span class="booking-status {{ booking.status.value }}">
+                            {{ booking.status.value.title() }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="booking-details-grid">
+                    <div class="detail-box">
+                        <span class="detail-label">Library</span>
+                        <span class="detail-value">{{ booking.library.name }}</span>
+                    </div>
+                    <div class="detail-box">
+                        <span class="detail-label">Booked On</span>
+                        <span class="detail-value">{{ booking.created_at.strftime('%b %d, %Y') }}</span>
+                    </div>
+                    <div class="detail-box">
+                        <span class="detail-label">Booking ID</span>
+                        <span class="detail-value">#{{ booking.id }}</span>
+                    </div>
+                    <div class="detail-box">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value">{{ booking.status.value.title() }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <div class="empty-title">No Past Bookings</div>
+                <div class="empty-text">Your booking history will appear here</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

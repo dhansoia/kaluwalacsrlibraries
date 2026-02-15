@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Library Settings - {{ library.name }}{% endblock %}
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="background: white; border-radius: 15px; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <h1 style="color: #2d5016; font-size: 2rem; margin-bottom: 30px;">⚙️ Library Settings</h1>
+        
+        <form method="POST">
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Opening Time</label>
+                <input type="time" name="opening_time" value="{{ settings.opening_time.strftime('%H:%M') }}" required 
+                       style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Closing Time</label>
+                <input type="time" name="closing_time" value="{{ settings.closing_time.strftime('%H:%M') }}" required
+                       style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Slot Duration (minutes)</label>
+                <input type="number" name="slot_duration" value="{{ settings.slot_duration }}" min="15" max="240" required
+                       style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 8px;">Login Marquee Message</label>
+                <textarea name="login_marquee" rows="3" 
+                          style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">{{ settings.login_marquee }}</textarea>
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" name="maintenance_mode" {% if settings.maintenance_mode %}checked{% endif %}
+                           style="width: 20px; height: 20px;">
+                    <span style="font-weight: 600;">Maintenance Mode (Disable all bookings)</span>
+                </label>
+            </div>
+            
+            <button type="submit" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #4a7c2c 0%, #2d5016 100%); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+                💾 Save Settings
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

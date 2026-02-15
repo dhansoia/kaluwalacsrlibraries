@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Pending User Approvals - {{ library.name }}{% endblock %}
+{% block extra_css %}
+<style>
+.pending-container{max-width:1200px;margin:0 auto}.pending-header{background:#fff;border-radius:15px;padding:30px;margin-bottom:30px;box-shadow:0 4px 15px rgba(0,0,0,.1)}.pending-title{color:#f59e0b;font-size:2rem;margin-bottom:10px;font-weight:700}.user-card{background:#fff;border-radius:15px;padding:25px;margin-bottom:20px;box-shadow:0 4px 15px rgba(0,0,0,.1);border-left:5px solid #f59e0b}.user-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:20px}.info-item{padding:12px;background:#f9fafb;border-radius:8px}.info-label{font-size:.85rem;color:#666;margin-bottom:5px}.info-value{font-weight:600;color:#333;font-size:1.1rem}.role-selector{margin:20px 0;padding:20px;background:#f0f9ff;border-radius:10px;border:2px solid #3b82f6}.role-selector label{display:block;font-weight:700;color:#1e3a8a;margin-bottom:15px;font-size:1.1rem}.role-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.role-option{position:relative}.role-option input[type="radio"]{position:absolute;opacity:0}.role-option label{display:block;padding:15px;background:#fff;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;transition:all .3s;text-align:center}.role-option input:checked + label{background:#3b82f6;color:#fff;border-color:#3b82f6;font-weight:700}.role-option label:hover{border-color:#3b82f6;transform:translateY(-2px)}.role-icon{font-size:1.5rem;display:block;margin-bottom:5px}.user-actions{display:flex;gap:10px;flex-wrap:wrap}.btn{padding:12px 24px;border-radius:8px;font-weight:600;border:none;cursor:pointer;transition:all .3s;text-decoration:none;display:inline-block}.btn-success{background:#10b981;color:#fff}.btn-success:hover{background:#059669}.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}.btn-secondary{background:#e5e7eb;color:#333}.btn-secondary:hover{background:#d1d5db}.empty-state{text-align:center;padding:60px;background:#fff;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,.1)}.empty-icon{font-size:5rem;margin-bottom:20px}.badge-pending{background:#fef3c7;color:#92400e;padding:6px 15px;border-radius:15px;font-size:.9rem;font-weight:600}
+</style>
+{% endblock %}
+{% block content %}
+<div class="pending-container">
+<a href="/admin/{{ library.slug }}" class="btn btn-secondary" style="margin-bottom:20px">← Back to Dashboard</a>
+<div class="pending-header">
+<h1 class="pending-title">⏳ Pending User Approvals</h1>
+<p style="color:#666;font-size:1.1rem">Review new registrations and assign roles for {{ library.name }}</p>
+</div>
+
+{% if pending_users %}
+<div style="background:#fef3c7;padding:20px;border-radius:12px;margin-bottom:30px;border-left:4px solid #f59e0b">
+<p style="color:#92400e;font-weight:600;font-size:1.1rem">
+📋 {{ pending_users|length }} user(s) waiting for your approval
+</p>
+</div>
+
+{% for user in pending_users %}
+<div class="user-card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+<div>
+<h3 style="color:#2d5016;font-size:1.5rem;margin-bottom:5px">{{ user.username }}</h3>
+<span class="badge-pending">⏳ Pending Approval</span>
+</div>
+<div style="text-align:right;color:#666;font-size:.9rem">
+<div>Registered:</div>
+<div style="font-weight:600;color:#333">{{ user.created_at.strftime('%b %d, %Y at %I:%M %p') }}</div>
+</div>
+</div>
+
+<div class="user-info">
+<div class="info-item">
+<div class="info-label">📧 Email Address</div>
+<div class="info-value">{{ user.email }}</div>
+</div>
+<div class="info-item">
+<div class="info-label">🏠 Home Library</div>
+<div class="info-value">{{ library.name }}</div>
+</div>
+<div class="info-item">
+<div class="info-label">👤 User ID</div>
+<div class="info-value">#{{ user.id }}</div>
+</div>
+<div class="info-item">
+<div class="info-label">⏰ Waiting Time</div>
+<div class="info-value">{{ (now - user.created_at).days }} day(s)</div>
+</div>
+</div>
+
+<form method="POST" action="/admin/{{ library.slug }}/approve-user/{{ user.id }}">
+<div class="role-selector">
+<label>👥 Assign User Role</label>
+<div class="role-options">
+<div class="role-option">
+<input type="radio" id="student_{{ user.id }}" name="user_role" value="student" checked>
+<label for="student_{{ user.id }}">
+<span class="role-icon">🎓</span>
+<div>Student</div>
+<small style="font-size:.8rem;opacity:.8">General access</small>
+</label>
+</div>
+<div class="role-option">
+<input type="radio" id="researcher_{{ user.id }}" name="user_role" value="researcher">
+<label for="researcher_{{ user.id }}">
+<span class="role-icon">🔬</span>
+<div>Researcher</div>
+<small style="font-size:.8rem;opacity:.8">Research seats</small>
+</label>
+</div>
+<div class="role-option">
+<input type="radio" id="staff_{{ user.id }}" name="user_role" value="staff">
+<label for="staff_{{ user.id }}">
+<span class="role-icon">👔</span>
+<div>Staff</div>
+<small style="font-size:.8rem;opacity:.8">Staff seats</small>
+</label>
+</div>
+<div class="role-option">
+<input type="radio" id="admin_{{ user.id }}" name="user_role" value="admin">
+<label for="admin_{{ user.id }}">
+<span class="role-icon">⚡</span>
+<div>Admin</div>
+<small style="font-size:.8rem;opacity:.8">Library admin</small>
+</label>
+</div>
+</div>
+<p style="color:#1e3a8a;margin-top:15px;font-size:.9rem">
+ℹ️ Students can book general seats. Researchers and Staff can book their reserved seats. Admins can manage the library.
+</p>
+</div>
+
+<div class="user-actions">
+<button type="submit" class="btn btn-success">
+✅ Approve as Selected Role
+</button>
+</div>
+</form>
+
+<form method="POST" action="/admin/{{ library.slug }}/reject-user/{{ user.id }}" style="display:inline" onsubmit="return confirm('Reject {{ user.username }}? They will not be able to access the system.')">
+<button type="submit" class="btn btn-danger">
+❌ Reject Application
+</button>
+</form>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="empty-state">
+<div class="empty-icon">✅</div>
+<h2 style="color:#2d5016;font-size:1.8rem;margin-bottom:15px">All Caught Up!</h2>
+<p style="color:#666;font-size:1.1rem;margin-bottom:20px">
+No pending user registrations at the moment.
+</p>
+<p style="color:#999;font-size:.95rem">
+New registrations will appear here for your review.
+</p>
+</div>
+{% endif %}
+
+</div>
+{% endblock %}

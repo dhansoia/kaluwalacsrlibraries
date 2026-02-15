@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}Analytics - CSR Admin{% endblock %}
+{% block extra_css %}
+<style>
+.analytics-container{max-width:1600px;margin:0 auto}.analytics-header{background:linear-gradient(135deg,#1e3a8a 0%,#3b82f6 100%);color:#fff;border-radius:15px;padding:30px;margin-bottom:30px;box-shadow:0 8px 30px rgba(0,0,0,.3)}.analytics-title{font-size:2rem;margin-bottom:10px;font-weight:700}.section{background:#fff;border-radius:15px;padding:30px;margin-bottom:30px;box-shadow:0 4px 15px rgba(0,0,0,.1)}.section-title{color:#1e3a8a;font-size:1.5rem;margin-bottom:20px;font-weight:700;padding-bottom:15px;border-bottom:3px solid #e5e7eb}.chart-container{position:relative;height:400px;margin:20px 0}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin:20px 0}.stat-box{background:#f9fafb;padding:20px;border-radius:10px;text-align:center;border:2px solid #e5e7eb}.stat-value{font-size:2rem;font-weight:700;color:#1e3a8a;margin-bottom:5px}.stat-label{color:#666;font-size:.9rem}.table{width:100%;border-collapse:collapse;margin-top:20px}.table th{background:#f9fafb;padding:12px;text-align:left;font-weight:600;color:#333;border-bottom:2px solid #e5e7eb}.table td{padding:12px;border-bottom:1px solid #e5e7eb}.table tr:hover{background:#f9fafb}.btn{padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;transition:all .3s;display:inline-block;border:none;cursor:pointer}.btn-primary{background:#3b82f6;color:#fff}.btn-primary:hover{background:#1e3a8a}.btn-secondary{background:#e5e7eb;color:#333}.btn-secondary:hover{background:#d1d5db}.actions{display:flex;gap:10px;margin-top:20px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="analytics-container">
+<a href="/csr-admin" class="btn btn-secondary" style="margin-bottom:20px">← Back to Dashboard</a>
+
+<div class="analytics-header">
+<h1 class="analytics-title">📊 Network Analytics & Reports</h1>
+<p style="font-size:1.1rem;opacity:.9">Detailed insights across all libraries</p>
+</div>
+
+<!-- Network Overview -->
+<div class="section">
+<h2 class="section-title">🌐 Network Overview</h2>
+<div class="stats-grid">
+<div class="stat-box">
+<div class="stat-value">{{ summary.total_libraries }}</div>
+<div class="stat-label">Total Libraries</div>
+</div>
+<div class="stat-box">
+<div class="stat-value">{{ summary.total_seats }}</div>
+<div class="stat-label">Total Seats</div>
+</div>
+<div class="stat-box">
+<div class="stat-value">{{ summary.total_users }}</div>
+<div class="stat-label">Registered Users</div>
+</div>
+<div class="stat-box">
+<div class="stat-value">{{ summary.total_bookings }}</div>
+<div class="stat-label">All-Time Bookings</div>
+</div>
+<div class="stat-box">
+<div class="stat-value">{{ summary.active_bookings }}</div>
+<div class="stat-label">Active Bookings</div>
+</div>
+</div>
+</div>
+
+<!-- Monthly Trends -->
+<div class="section">
+<h2 class="section-title">📈 Monthly Booking Trends</h2>
+<canvas id="monthlyChart"></canvas>
+</div>
+
+<!-- Peak Hours -->
+<div class="section">
+<h2 class="section-title">⏰ Peak Booking Hours</h2>
+<canvas id="peakHoursChart"></canvas>
+</div>
+
+<!-- Library Rankings -->
+<div class="section">
+<h2 class="section-title">🏆 Library Rankings by Activity</h2>
+<table class="table">
+<thead>
+<tr>
+<th>Rank</th>
+<th>Library</th>
+<th>Location</th>
+<th>Total Seats</th>
+<th>Total Bookings</th>
+<th>Active Users</th>
+<th>Utilization</th>
+</tr>
+</thead>
+<tbody>
+{% for rank in rankings %}
+<tr>
+<td><strong>#{{ loop.index }}</strong></td>
+<td>{{ rank.library_name }}</td>
+<td>{{ rank.city }}, {{ rank.state }}</td>
+<td>{{ rank.total_seats }}</td>
+<td>{{ rank.total_bookings }}</td>
+<td>{{ rank.active_users }}</td>
+<td>
+<span style="color:#10b981;font-weight:600">{{ rank.utilization }}%</span>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<!-- Booking Status Breakdown -->
+{% if status_breakdown %}
+<div class="section">
+<h2 class="section-title">📊 Booking Status Distribution</h2>
+<canvas id="statusChart" style="max-height:300px"></canvas>
+</div>
+{% endif %}
+
+<!-- Export Options -->
+<div class="section">
+<h2 class="section-title">📥 Export Reports</h2>
+<div class="actions">
+<a href="{{ url_for('csr_admin.export_bookings') }}" class="btn btn-primary">
+📄 Export All Bookings (CSV)
+</a>
+<a href="{{ url_for('csr_admin.export_libraries') }}" class="btn btn-primary">
+🏢 Export Libraries Data (CSV)
+</a>
+</div>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Monthly Trends Chart
+const monthlyCtx = document.getElementById('monthlyChart');
+new Chart(monthlyCtx, {
+    type: 'line',
+    data: {
+        labels: {{ (monthly_data|map(attribute='month')|list) or []|tojson }},
+        datasets: [{
+            label: 'Monthly Bookings',
+            data: {{ (monthly_data|map(attribute='count')|list) or []|tojson }},
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Peak Hours Chart
+const peakCtx = document.getElementById('peakHoursChart');
+new Chart(peakCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ (peak_hours|map(attribute='hour')|list) or []|tojson }},
+        datasets: [{
+            label: 'Bookings by Hour',
+            data: {{ (peak_hours|map(attribute='count')|list) or []|tojson }},
+            backgroundColor: '#10b981',
+            borderColor: '#059669',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Status Distribution Chart
+{% if status_breakdown and status_breakdown|length > 0 %}
+const statusCtx = document.getElementById('statusChart');
+if (statusCtx) {
+    const statusLabels = [
+        {% for item in status_breakdown %}
+        "{{ item.status if item.status else 'Unknown' }}"{{ "," if not loop.last else "" }}
+        {% endfor %}
+    ];
+    const statusData = [
+        {% for item in status_breakdown %}
+        {{ item.count if item.count else 0 }}{{ "," if not loop.last else "" }}
+        {% endfor %}
+    ];
+    
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusData,
+                backgroundColor: [
+                    '#10b981',
+                    '#ef4444',
+                    '#6b7280'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+{% endif %}
+</script>
+{% endblock %}

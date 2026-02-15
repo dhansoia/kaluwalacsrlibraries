@@ -1,0 +1,114 @@
+<!-- ADD THIS TO base.html BEFORE </body> tag -->
+
+<!-- Library Rules Modal -->
+{% if show_rules_modal %}
+<div id="rulesModal" class="rules-modal">
+    <div class="rules-modal-content">
+        <div class="rules-header">
+            <h2 style="color:#2d5016;font-size:2rem;margin:0;display:flex;align-items:center;gap:10px">
+                📋 Library Rules & Guidelines
+            </h2>
+            <p style="color:#666;margin:10px 0 0 0">{{ current_library.name }}</p>
+        </div>
+        
+        <div class="rules-body">
+            <div class="rules-section">
+                <h3 style="color:#2d5016;margin-bottom:15px">✅ DO's</h3>
+                <ul class="rules-list">
+                    <li>Maintain silence in the library premises</li>
+                    <li>Keep your mobile phones on silent mode</li>
+                    <li>Arrive on time for your booked slot</li>
+                    <li>Keep your belongings organized</li>
+                    <li>Report any issues to library staff</li>
+                    <li>Return borrowed materials on time</li>
+                    <li>Keep your seat clean before leaving</li>
+                    <li>Respect other readers and maintain decorum</li>
+                </ul>
+            </div>
+            
+            <div class="rules-section">
+                <h3 style="color:#ef4444;margin-bottom:15px">❌ DON'Ts</h3>
+                <ul class="rules-list">
+                    <li>No loud conversations or phone calls</li>
+                    <li>No food or beverages (except water)</li>
+                    <li>Don't damage or deface library property</li>
+                    <li>Don't occupy seats without booking</li>
+                    <li>Don't share your booking with others</li>
+                    <li>Don't leave valuable items unattended</li>
+                    <li>No sleeping or inappropriate behavior</li>
+                    <li>Don't cancel bookings at the last minute</li>
+                </ul>
+            </div>
+            
+            <div class="rules-note">
+                <strong>⚠️ Important:</strong> Violation of these rules may result in suspension of your library access. 
+                Multiple violations may lead to permanent ban from the library network.
+            </div>
+        </div>
+        
+        <div class="rules-footer">
+            <label class="checkbox-label">
+                <input type="checkbox" id="agreeCheckbox" required>
+                <span>I have read and agree to follow all library rules and guidelines</span>
+            </label>
+            <button id="agreeButton" class="btn-agree" disabled onclick="acknowledgeRules()">
+                I Agree & Continue
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.rules-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s}.rules-modal-content{background:#fff;border-radius:20px;max-width:800px;width:100%;max-height:90vh;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:slideUp .3s}.rules-header{background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);padding:30px;border-bottom:3px solid #10b981}.rules-body{padding:30px;max-height:50vh;overflow-y:auto}.rules-section{margin-bottom:30px}.rules-list{list-style:none;padding:0;margin:0}.rules-list li{padding:12px 15px;margin:8px 0;background:#f9fafb;border-left:4px solid #10b981;border-radius:6px;line-height:1.6}.rules-section:last-of-type .rules-list li{border-left-color:#ef4444}.rules-note{background:#fef3c7;border-left:4px solid #f59e0b;padding:20px;border-radius:8px;margin-top:20px;line-height:1.8}.rules-footer{padding:25px 30px;background:#f9fafb;border-top:2px solid #e5e7eb}.checkbox-label{display:flex;align-items:center;gap:12px;margin-bottom:20px;cursor:pointer;font-size:1.05rem}.checkbox-label input{width:20px;height:20px;cursor:pointer}.btn-agree{width:100%;padding:15px;background:#10b981;color:#fff;border:none;border-radius:10px;font-size:1.1rem;font-weight:700;cursor:pointer;transition:all .3s}.btn-agree:disabled{background:#d1d5db;cursor:not-allowed}.btn-agree:not(:disabled):hover{background:#059669;transform:translateY(-2px);box-shadow:0 8px 20px rgba(16,185,129,.3)}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+
+<script>
+// Enable agree button when checkbox is checked
+document.getElementById('agreeCheckbox')?.addEventListener('change', function() {
+    document.getElementById('agreeButton').disabled = !this.checked;
+});
+
+// Acknowledge rules
+function acknowledgeRules() {
+    fetch('/acknowledge-rules', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            library_id: {{ current_library.id if current_library else 'null' }}
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('rulesModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to acknowledge rules. Please try again.');
+    });
+}
+
+// Prevent closing modal by clicking outside
+document.getElementById('rulesModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+// Prevent ESC key from closing modal
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('rulesModal')) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+// Lock body scroll when modal is open
+document.body.style.overflow = 'hidden';
+</script>
+{% endif %}

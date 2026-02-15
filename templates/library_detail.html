@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}{{ library.name }} - Kaluwala CSR Libraries{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .library-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding-bottom: 30px;
+        border-bottom: 3px solid #e5e7eb;
+    }
+    
+    .library-logo-large {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        margin-bottom: 20px;
+    }
+    
+    .library-title {
+        color: #2d5016;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+    
+    .section-title {
+        color: #4a7c2c;
+        font-size: 1.5rem;
+        margin: 30px 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+    }
+    
+    .stat-box {
+        background: linear-gradient(135deg, #4a7c2c 0%, #2d5016 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 12px;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+    
+    .stat-label {
+        font-size: 0.95rem;
+        opacity: 0.95;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+    
+    .info-card {
+        background: #f9fafb;
+        padding: 25px;
+        border-radius: 12px;
+        border-left: 4px solid #4a7c2c;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-top: 30px;
+        padding: 12px 24px;
+        background: #4a7c2c;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <div class="library-header">
+        {% if library_logo_url %}
+        <img src="{{ library_logo_url }}" alt="{{ library.name }}" class="library-logo-large">
+        {% else %}
+        <div style="font-size: 4rem; margin-bottom: 20px;">📚</div>
+        {% endif %}
+        <h1 class="library-title">{{ library.name }}</h1>
+        <p style="color: #666; font-size: 1.1rem;">
+            <strong>CSR Partner:</strong> {{ library.csr_partner }}
+        </p>
+    </div>
+    
+    {% if settings and settings.login_marquee %}
+    <div style="background: #fef3c7; border: 2px solid #f59e0b; padding: 18px; border-radius: 8px; text-align: center; color: #92400e; font-weight: 600; margin-bottom: 30px;">
+        {{ settings.login_marquee }}
+    </div>
+    {% endif %}
+    
+    <h2 class="section-title">📍 Location Details</h2>
+    <div class="info-grid">
+        <div class="info-card">
+            <h3 style="color: #2d5016; margin-bottom: 10px;">Address</h3>
+            <p>{{ library.address }}<br>{{ library.city }}, {{ library.state }} - {{ library.pincode }}</p>
+        </div>
+        <div class="info-card">
+            <h3 style="color: #2d5016; margin-bottom: 10px;">Contact</h3>
+            <p><strong>Email:</strong> {{ library.contact_email or 'N/A' }}<br>
+               <strong>Phone:</strong> {{ library.contact_phone or 'N/A' }}</p>
+        </div>
+    </div>
+    
+    <h2 class="section-title">💺 Seating Capacity</h2>
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="stat-number">{{ total_seats }}</div>
+            <div class="stat-label">Total Seats</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ general_seats }}</div>
+            <div class="stat-label">General</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ reserved_seats }}</div>
+            <div class="stat-label">Reserved</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number">{{ total_seats - maintenance_seats }}</div>
+            <div class="stat-label">Available</div>
+        </div>
+    </div>
+    
+    {% if settings %}
+    <h2 class="section-title">⏰ Operating Hours</h2>
+    <div class="info-grid">
+        <div class="info-card">
+            <h3 style="color: #2d5016; margin-bottom: 10px;">Timings</h3>
+            <p><strong>Opens:</strong> {{ settings.opening_time.strftime('%I:%M %p') }}<br>
+               <strong>Closes:</strong> {{ settings.closing_time.strftime('%I:%M %p') }}<br>
+               <strong>Slot:</strong> {{ settings.slot_duration }} minutes</p>
+        </div>
+        <div class="info-card">
+            <h3 style="color: #2d5016; margin-bottom: 10px;">Booking Info</h3>
+            <p>{{ (settings.closing_time.hour - settings.opening_time.hour) * 60 // settings.slot_duration }} slots per day<br>
+               {{ settings.closing_time.hour - settings.opening_time.hour }} hours daily<br>
+               Advance booking available</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    <a href="/" class="back-link">← Back to Home</a>
+</div>
+{% endblock %}

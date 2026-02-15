@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Pending Approval{% endblock %}
+{% block content %}
+<div style="max-width:600px;margin:80px auto;text-align:center">
+<div style="background:#fff;border-radius:20px;padding:60px 40px;box-shadow:0 10px 40px rgba(0,0,0,.1)">
+<div style="font-size:5rem;margin-bottom:20px">⏳</div>
+<h1 style="color:#f59e0b;font-size:2.5rem;margin-bottom:20px;font-weight:700">Registration Pending</h1>
+<p style="color:#666;font-size:1.2rem;line-height:1.8;margin-bottom:30px">
+Your account has been created successfully!<br>
+However, your registration needs to be approved by the library admin before you can start booking seats.
+</p>
+<div style="background:#fef3c7;padding:25px;border-radius:12px;border-left:5px solid #f59e0b;margin-bottom:30px">
+<p style="color:#92400e;font-weight:600;margin-bottom:10px">👤 Account Details:</p>
+<p style="color:#78350f;margin:5px 0"><strong>Username:</strong> {{ current_user.username }}</p>
+<p style="color:#78350f;margin:5px 0"><strong>Email:</strong> {{ current_user.email }}</p>
+<p style="color:#78350f;margin:5px 0"><strong>Library:</strong> {{ current_user.home_library.name }}</p>
+<p style="color:#78350f;margin:5px 0"><strong>Status:</strong> <span style="background:#fbbf24;color:#fff;padding:4px 12px;border-radius:12px;font-size:.9rem">Pending Approval</span></p>
+</div>
+<div style="background:#f9fafb;padding:25px;border-radius:12px;margin-bottom:30px;text-align:left">
+<h3 style="color:#2d5016;margin-bottom:15px">📋 What happens next?</h3>
+<ol style="color:#666;line-height:2;padding-left:20px">
+<li>Library admin will review your registration</li>
+<li>You'll receive approval within 24-48 hours</li>
+<li>Once approved, you can book seats and use all features</li>
+<li>Check back here or wait for email notification</li>
+</ol>
+</div>
+<div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap">
+<a href="/logout" style="padding:15px 30px;background:#e5e7eb;color:#333;border-radius:10px;text-decoration:none;font-weight:600;transition:all .3s">Logout</a>
+<button onclick="location.reload()" style="padding:15px 30px;background:#4a7c2c;color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer;transition:all .3s">
+Refresh Status
+</button>
+</div>
+<p style="color:#999;font-size:.9rem;margin-top:30px">
+Need help? Contact your library admin at:<br>
+<strong style="color:#666">{{ current_user.home_library.contact_email or 'Contact library directly' }}</strong>
+</p>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+# Kaluwala CSR Libraries - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core Flask
+Flask>=3.0.0
+Werkzeug>=3.0.0
+
+# Database
+Flask-SQLAlchemy>=3.0.0
+Flask-Migrate>=4.0.0
+
+# Authentication
+Flask-Login>=0.6.0
+
+# Email
+Flask-Mail>=0.10.0
+
+# PDF Generation
+reportlab>=4.0.0
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Image Processing (for gallery)
+Pillow>=10.0.0
+
+# Charts (optional - for advanced PDF reports)
+matplotlib>=3.8.0
+
+# Excel Export (optional)
+openpyxl>=3.1.0
+
+# Additional utilities
+email-validator>=2.1.0

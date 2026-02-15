@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}User Reporting - {{ library.name }}{% endblock %}
+{% block extra_css %}
+<style>
+.reporting-container{max-width:1400px;margin:0 auto;padding:20px}.page-header{background:#fff;padding:30px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,.1);margin-bottom:30px}.page-title{color:#2d5016;font-size:2rem;font-weight:700;margin-bottom:10px}.section{background:#fff;padding:25px;border-radius:12px;margin-bottom:25px;box-shadow:0 2px 10px rgba(0,0,0,.08)}.section h2{color:#2d5016;font-size:1.4rem;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #e5e7eb}.booking-grid{display:grid;gap:15px}.booking-card{background:#f9fafb;padding:20px;border-radius:10px;border-left:4px solid #4a7c2c;display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center}.booking-card.warning{border-left-color:#f59e0b;background:#fef3c7}.booking-card.danger{border-left-color:#ef4444;background:#fee2e2}.booking-info{flex:1}.booking-detail{margin:5px 0;color:#666;font-size:.95rem}.booking-detail strong{color:#333}.time-badge{display:inline-block;padding:6px 12px;border-radius:8px;font-weight:600;font-size:.9rem;margin-left:10px}.time-badge.safe{background:#d1fae5;color:#065f46}.time-badge.warning{background:#fef3c7;color:#92400e}.time-badge.expired{background:#fee2e2;color:#991b1b}.btn{padding:10px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:all .3s;font-size:.95rem}.btn-success{background:#10b981;color:#fff}.btn-success:hover{background:#059669}.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}.btn-secondary{background:#6b7280;color:#fff;text-decoration:none;display:inline-block}.btn-secondary:hover{background:#4b5563}.empty-state{text-align:center;padding:60px;color:#666}.empty-icon{font-size:4rem;margin-bottom:20px}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:25px}.stat-box{background:#f9fafb;padding:20px;border-radius:10px;text-align:center;border-left:4px solid #4a7c2c}.stat-value{font-size:2rem;font-weight:700;color:#2d5016}.stat-label{color:#666;font-size:.9rem;margin-top:5px}.user-avatar{width:50px;height:50px;background:#e5e7eb;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+</style>
+{% endblock %}
+{% block content %}
+<div class="reporting-container">
+<a href="{{ url_for('admin.dashboard', slug=library.slug) }}" class="btn btn-secondary" style="margin-bottom:20px">← Back to Dashboard</a>
+
+<div class="page-header">
+<h1 class="page-title">👥 User Reporting</h1>
+<p style="color:#666">Mark users as reported when they arrive at the library</p>
+</div>
+
+<!-- Auto-refresh notice -->
+<div style="background:#e0f2fe;padding:15px;border-radius:10px;margin-bottom:20px;text-align:center">
+<strong>🔄 Auto-Refresh:</strong> This page auto-refreshes every 60 seconds. Auto-cancellation runs every 5 minutes.
+</div>
+
+<!-- Statistics -->
+<div class="stats-grid">
+<div class="stat-box">
+<div class="stat-value">{{ pending_count }}</div>
+<div class="stat-label">Pending Reports</div>
+</div>
+<div class="stat-box">
+<div class="stat-value">{{ reported_count }}</div>
+<div class="stat-label">Reported Today</div>
+</div>
+<div class="stat-box">
+<div class="stat-value">{{ upcoming_count }}</div>
+<div class="stat-label">Arriving Soon (30 min)</div>
+</div>
+</div>
+
+<!-- Pending Reports -->
+<div class="section">
+<h2>⏳ Pending Reports - Users Need to Check In</h2>
+{% if pending_reports %}
+<div class="booking-grid">
+{% for item in pending_reports %}
+<div class="booking-card {% if item.grace_expired %}danger{% elif item.minutes_remaining < 5 %}warning{% endif %}">
+<div class="user-avatar">👤</div>
+<div class="booking-info">
+<div class="booking-detail"><strong>{{ item.booking.user.username }}</strong></div>
+<div class="booking-detail">💺 Seat {{ item.booking.seat.number }}</div>
+<div class="booking-detail">⏰ {{ item.booking.time_slot.strftime('%I:%M %p') }}</div>
+<div class="booking-detail">
+{% if item.grace_expired %}
+<span class="time-badge expired">⚠️ EXPIRED - Will Auto-Cancel</span>
+{% elif item.minutes_remaining < 5 %}
+<span class="time-badge warning">🔥 {{ item.minutes_remaining }} min remaining</span>
+{% else %}
+<span class="time-badge safe">✅ {{ item.minutes_remaining }} min remaining</span>
+{% endif %}
+</div>
+</div>
+<div>
+{% if item.can_report %}
+<form method="POST" action="{{ url_for('admin.mark_reported', slug=library.slug) }}" style="display:inline">
+<input type="hidden" name="booking_id" value="{{ item.booking.id }}">
+<button type="submit" class="btn btn-success">✓ Mark Reported</button>
+</form>
+{% else %}
+<button class="btn btn-danger" disabled>Grace Period Expired</button>
+{% endif %}
+</div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+<div class="empty-icon">✅</div>
+<p style="font-size:1.2rem;font-weight:600">All users have reported!</p>
+<p>No pending check-ins at the moment.</p>
+</div>
+{% endif %}
+</div>
+
+<!-- Reported Today -->
+<div class="section">
+<h2>✅ Reported Today</h2>
+{% if reported_today %}
+<div class="booking-grid">
+{% for booking in reported_today %}
+<div class="booking-card" style="border-left-color:#10b981;background:#d1fae5">
+<div class="user-avatar">✓</div>
+<div class="booking-info">
+<div class="booking-detail"><strong>{{ booking.user.username }}</strong></div>
+<div class="booking-detail">💺 Seat {{ booking.seat.number }}</div>
+<div class="booking-detail">⏰ Slot: {{ booking.time_slot.strftime('%I:%M %p') }}</div>
+<div class="booking-detail">✓ Reported: {{ booking.reported_at.strftime('%I:%M %p') }}</div>
+</div>
+<div>
+<span class="time-badge safe">Checked In</span>
+</div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+<div class="empty-icon">📋</div>
+<p>No users have reported yet today.</p>
+</div>
+{% endif %}
+</div>
+
+</div>
+
+<script>
+// Auto-refresh every 60 seconds
+setTimeout(function() {
+    location.reload();
+}, 60000);
+</script>
+{% endblock %}

@@ -1,0 +1,399 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - {{ library.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .admin-header {
+        background: linear-gradient(135deg, #2d5016 0%, #4a7c2c 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .admin-title {
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+    
+    .admin-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .admin-badge {
+        display: inline-block;
+        background: #fbbf24;
+        color: #78350f;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-left: 15px;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d5016;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        color: #666;
+        font-size: 0.95rem;
+    }
+    
+    .tabs {
+        background: white;
+        border-radius: 15px;
+        padding: 0;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .tab-nav {
+        display: flex;
+        border-bottom: 2px solid #e5e7eb;
+        background: #f9fafb;
+    }
+    
+    .tab-link {
+        padding: 18px 30px;
+        color: #666;
+        text-decoration: none;
+        font-weight: 600;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .tab-link:hover {
+        background: #f3f4f6;
+        color: #2d5016;
+    }
+    
+    .tab-link.active {
+        color: #2d5016;
+        background: white;
+        border-bottom-color: #4a7c2c;
+    }
+    
+    .content-section {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+        color: #2d5016;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        font-weight: 700;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #e5e7eb;
+    }
+    
+    .booking-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    
+    .booking-table th {
+        background: #f9fafb;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #333;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .booking-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .booking-table tr:hover {
+        background: #f9fafb;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-booked {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .quick-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-primary {
+        background: #4a7c2c;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #2d5016;
+    }
+    
+    .btn-secondary {
+        background: #e5e7eb;
+        color: #333;
+    }
+    
+    .btn-secondary:hover {
+        background: #d1d5db;
+    }
+    
+    @media (max-width: 768px) {
+        .tab-nav {
+            overflow-x: auto;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .booking-table {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1 class="admin-title">
+            🛠️ Admin Dashboard
+            <span class="admin-badge">ADMIN</span>
+        </h1>
+        <p class="admin-subtitle">{{ library.name }} - {{ library.city }}, {{ library.state }}</p>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">💺</div>
+            <div class="stat-value">{{ total_seats }}</div>
+            <div class="stat-label">Total Seats</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🔧</div>
+            <div class="stat-value">{{ maintenance_seats }}</div>
+            <div class="stat-label">In Maintenance</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-value">{{ today_bookings }}</div>
+            <div class="stat-label">Today's Bookings</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">{{ month_bookings }}</div>
+            <div class="stat-label">This Month</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value">{{ active_users }}</div>
+            <div class="stat-label">Active Users</div>
+        </div>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+        <div class="tab-nav">
+            <a href="{{ url_for('admin.dashboard', slug=library.slug) }}" class="tab-link active">
+                📊 Overview
+            </a>
+            <a href="{{ url_for('admin.manage_seats', slug=library.slug) }}" class="tab-link">
+                💺 Manage Seats
+            </a>
+            <a href="{{ url_for('admin.manage_settings', slug=library.slug) }}" class="tab-link">
+                ⚙️ Settings
+            </a>
+            <a href="{{ url_for('admin.reports', slug=library.slug) }}" class="tab-link">
+                📈 Reports
+            </a>
+            <a href="{{ url_for('admin.all_bookings', slug=library.slug) }}" class="tab-link">
+                📋 All Bookings
+            </a>
+            <a href="{{ url_for('admin.manage_users', slug=library.slug) }}" class="tab-link">
+                👥 Users
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent Bookings -->
+    <div class="content-section">
+        <h2 class="section-title">Recent Bookings</h2>
+        
+        {% if recent_bookings %}
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Seat</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Booked At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in recent_bookings %}
+                <tr>
+                    <td>#{{ booking.id }}</td>
+                    <td>{{ booking.user.username }}</td>
+                    <td>Seat {{ booking.seat.number }}</td>
+                    <td>{{ booking.date.strftime('%b %d, %Y') }}</td>
+                    <td>{{ booking.time_slot.strftime('%I:%M %p') }}</td>
+                    <td>
+                        <span class="status-badge status-{{ booking.status.value }}">
+                            {{ booking.status.value.title() }}
+                        </span>
+                    </td>
+                    <td>{{ booking.created_at.strftime('%b %d, %I:%M %p') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color: #666; text-align: center; padding: 40px;">No recent bookings</p>
+        {% endif %}
+        
+        <div class="quick-actions">
+            <a href="{{ url_for('admin.all_bookings', slug=library.slug) }}" class="btn btn-primary">
+                View All Bookings
+            </a>
+            <a href="{{ url_for('admin.reports', slug=library.slug) }}" class="btn btn-secondary">
+                Generate Reports
+            </a>
+        </div>
+    </div>
+    
+    <!-- Pending User Approvals -->
+    {% if pending_count > 0 %}
+    <div class="content-section" style="background: #fef3c7; border-left: 5px solid #f59e0b; margin-top: 30px;">
+        <h2 class="section-title" style="color: #92400e;">⏳ Pending User Approvals</h2>
+        <div style="background: #fff; padding: 25px; border-radius: 10px; margin-top: 15px;">
+            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
+                <div style="font-size: 3rem;">👥</div>
+                <div>
+                    <p style="font-size: 1.4rem; font-weight: 700; color: #92400e; margin-bottom: 5px;">
+                        {{ pending_count }} user(s) waiting for approval
+                    </p>
+                    <p style="color: #666; margin-bottom: 0;">
+                        New users have registered and need your approval before they can book seats.
+                    </p>
+                </div>
+            </div>
+            <a href="{{ url_for('admin.pending_users', slug=library.slug) }}" class="btn btn-primary" style="background: #f59e0b; border: none;">
+                📋 Review Pending Users →
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Quick Actions -->
+    <div class="content-section" style="margin-top: 30px;">
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="quick-actions">
+            <a href="{{ url_for('admin.manage_seats', slug=library.slug) }}" class="btn btn-primary">
+                🔧 Manage Seats
+            </a>
+            <a href="{{ url_for('admin.manage_settings', slug=library.slug) }}" class="btn btn-primary">
+                ⚙️ Library Settings
+            </a>
+            <a href="{{ url_for('admin.gallery', slug=library.slug) }}" class="btn btn-primary">
+                📸 Photo Gallery
+            </a>
+            <a href="{{ url_for('admin.user_reporting', slug=library.slug) }}" class="btn btn-primary">
+                👥 User Reporting
+            </a>
+            <a href="{{ url_for('admin.bulk_operations', slug=library.slug) }}" class="btn btn-primary">
+                ⚡ Bulk Operations
+            </a>
+            <a href="{{ url_for('admin.reports', slug=library.slug) }}" class="btn btn-secondary">
+                📊 View Analytics
+            </a>
+            <a href="{{ url_for('admin.download_pdf_report', slug=library.slug) }}" class="btn btn-secondary">
+                📄 Download PDF Report
+            </a>
+            <a href="{{ url_for('dashboard', slug=library.slug) }}" class="btn btn-secondary">
+                👁️ User View
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

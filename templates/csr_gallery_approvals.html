@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Gallery Approvals - CSR Admin{% endblock %}
+{% block extra_css %}
+<style>
+.approval-container{max-width:1600px;margin:0 auto}.approval-header{background:linear-gradient(135deg,#1e3a8a 0%,#3b82f6 100%);color:#fff;border-radius:15px;padding:30px;margin-bottom:30px;box-shadow:0 8px 30px rgba(0,0,0,.3)}.approval-title{font-size:2rem;margin-bottom:10px;font-weight:700}.image-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:25px}.image-card{background:#fff;border-radius:15px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.1)}.image-preview{width:100%;height:250px;object-fit:cover}.image-info{padding:20px}.image-caption{font-size:1.2rem;font-weight:700;color:#333;margin-bottom:10px}.image-description{color:#666;margin-bottom:15px;line-height:1.6}.image-meta{font-size:.85rem;color:#999;margin-bottom:8px}.library-tag{display:inline-block;background:#e0f2fe;color:#0369a1;padding:6px 12px;border-radius:8px;font-weight:600;font-size:.85rem;margin-bottom:10px}.approval-form{border-top:2px solid #e5e7eb;padding-top:15px;margin-top:15px}.form-group{margin-bottom:15px}.form-label{display:block;font-weight:600;margin-bottom:8px;color:#333;font-size:.9rem}.form-input{width:100%;padding:10px;border:2px solid #e5e7eb;border-radius:6px;font-size:.9rem}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{padding:12px;border-radius:8px;font-weight:600;border:none;cursor:pointer;transition:all .3s;text-align:center}.btn-success{background:#10b981;color:#fff}.btn-success:hover{background:#059669}.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}.btn-secondary{background:#e5e7eb;color:#333;text-decoration:none;display:inline-block}.btn-secondary:hover{background:#d1d5db}.empty-state{text-align:center;padding:80px;background:#fff;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,.1)}.empty-icon{font-size:5rem;margin-bottom:20px}.lightbox{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.9);z-index:1000;padding:20px}.lightbox img{max-width:90%;max-height:90%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:10px}.lightbox.active{display:flex;align-items:center;justify-content:center}.lightbox-close{position:absolute;top:20px;right:30px;color:#fff;font-size:3rem;cursor:pointer;z-index:1001}
+</style>
+{% endblock %}
+{% block content %}
+<div class="approval-container">
+<a href="/csr-admin" class="btn btn-secondary" style="margin-bottom:20px">← Back to Dashboard</a>
+
+<div class="approval-header">
+<h1 class="approval-title">🖼️ Gallery Approvals</h1>
+<p style="font-size:1.1rem;opacity:.9">Review and approve photos from all libraries</p>
+</div>
+
+{% if pending_images %}
+<div style="background:#fef3c7;padding:20px;border-radius:12px;margin-bottom:30px;border-left:4px solid #f59e0b">
+<p style="color:#92400e;font-weight:600;font-size:1.1rem">
+📋 {{ pending_images|length }} photo(s) waiting for approval
+</p>
+</div>
+
+<div class="image-grid">
+{% for image in pending_images %}
+<div class="image-card">
+<img src="/{{ image.file_path }}" alt="{{ image.caption }}" class="image-preview" onclick="openLightbox('/{{ image.file_path }}')" style="cursor:pointer">
+<div class="image-info">
+<span class="library-tag">📚 {{ image.library.name }}</span>
+<div class="image-caption">{{ image.caption }}</div>
+{% if image.description %}
+<div class="image-description">{{ image.description }}</div>
+{% endif %}
+<div class="image-meta">👤 Uploaded by: {{ image.uploader.username }}</div>
+<div class="image-meta">📅 {{ image.uploaded_at.strftime('%b %d, %Y at %I:%M %p') }}</div>
+<div class="image-meta">📍 {{ image.library.city }}, {{ image.library.state }}</div>
+<div class="image-meta">📏 {{ (image.file_size / 1024)|round(1) }} KB</div>
+
+<form method="POST" action="{{ url_for('csr_admin.approve_gallery_image') }}" class="approval-form">
+<input type="hidden" name="image_id" value="{{ image.id }}">
+<div class="actions">
+<button type="submit" name="action" value="approve" class="btn btn-success">
+✅ Approve
+</button>
+<button type="button" class="btn btn-danger" onclick="showRejectForm({{ image.id }})">
+❌ Reject
+</button>
+</div>
+<div id="rejectForm_{{ image.id }}" style="display:none;margin-top:15px">
+<div class="form-group">
+<label class="form-label">Rejection Reason</label>
+<textarea name="rejection_reason" class="form-input" rows="3" placeholder="Explain why this photo is being rejected..."></textarea>
+</div>
+<button type="submit" name="action" value="reject" class="btn btn-danger" style="width:100%">
+Confirm Rejection
+</button>
+</div>
+</form>
+</div>
+</div>
+{% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state">
+<div class="empty-icon">✅</div>
+<h2 style="color:#2d5016;font-size:1.8rem;margin-bottom:15px">All Caught Up!</h2>
+<p style="color:#666;font-size:1.1rem">
+No pending gallery photos at the moment.
+</p>
+</div>
+{% endif %}
+
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+<span class="lightbox-close">&times;</span>
+<img src="" id="lightboxImage" onclick="event.stopPropagation()">
+</div>
+
+<script>
+function showRejectForm(imageId) {
+    document.getElementById('rejectForm_' + imageId).style.display = 'block';
+}
+
+function openLightbox(imagePath) {
+    document.getElementById('lightboxImage').src = imagePath;
+    document.getElementById('lightbox').classList.add('active');
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+});
+</script>
+{% endblock %}

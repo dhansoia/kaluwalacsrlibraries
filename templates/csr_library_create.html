@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Create New Library{% endblock %}
+{% block content %}
+<div style="max-width:800px;margin:0 auto">
+<div style="background:#fff;border-radius:15px;padding:40px;box-shadow:0 4px 15px rgba(0,0,0,.1)">
+<h1 style="color:#1e3a8a;font-size:2rem;margin-bottom:30px">➕ Create New Library</h1>
+<form method="POST">
+<h3 style="margin:20px 0 15px;color:#333">Library Details</h3>
+<div style="margin-bottom:20px"><label style="display:block;font-weight:600;margin-bottom:8px">Library Name*</label><input type="text" name="name" required style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<div style="margin-bottom:20px"><label style="display:block;font-weight:600;margin-bottom:8px">Slug (URL)*</label><input type="text" name="slug" required placeholder="e.g., pilot-lib" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"><small style="color:#666">Lowercase, no spaces</small></div>
+<div style="margin-bottom:20px"><label style="display:block;font-weight:600;margin-bottom:8px">Address*</label><input type="text" name="address" required style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;margin-bottom:20px">
+<div><label style="display:block;font-weight:600;margin-bottom:8px">City*</label><input type="text" name="city" required style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<div><label style="display:block;font-weight:600;margin-bottom:8px">State*</label><input type="text" name="state" required style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<div><label style="display:block;font-weight:600;margin-bottom:8px">Pincode*</label><input type="text" name="pincode" required style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+</div>
+<div style="margin-bottom:20px"><label style="display:block;font-weight:600;margin-bottom:8px">Contact Email</label><input type="email" name="contact_email" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<div style="margin-bottom:20px"><label style="display:block;font-weight:600;margin-bottom:8px">Contact Phone</label><input type="text" name="contact_phone" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<h3 style="margin:30px 0 15px;color:#333">Seating Configuration</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px">
+<div><label style="display:block;font-weight:600;margin-bottom:8px">Number of Seats</label><input type="number" name="num_seats" value="60" min="10" max="500" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<div><label style="display:block;font-weight:600;margin-bottom:8px">Reserved %</label><input type="number" name="reserved_percentage" value="25" min="0" max="50" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+</div>
+<h3 style="margin:30px 0 15px;color:#333">Operating Hours</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;margin-bottom:20px">
+<div><label style="display:block;font-weight:600;margin-bottom:8px">Opening Time</label><input type="time" name="opening_time" value="09:00" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<div><label style="display:block;font-weight:600;margin-bottom:8px">Closing Time</label><input type="time" name="closing_time" value="21:00" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<div><label style="display:block;font-weight:600;margin-bottom:8px">Slot (min)</label><input type="number" name="slot_duration" value="60" min="15" max="240" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+</div>
+<h3 style="margin:30px 0 15px;color:#333">Admin User (Optional)</h3>
+<div style="margin-bottom:20px"><label style="display:block;font-weight:600;margin-bottom:8px">Admin Username</label><input type="text" name="admin_username" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<div style="margin-bottom:20px"><label style="display:block;font-weight:600;margin-bottom:8px">Admin Email</label><input type="email" name="admin_email" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<div style="margin-bottom:20px"><label style="display:block;font-weight:600;margin-bottom:8px">Admin Password</label><input type="password" name="admin_password" style="width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:8px"></div>
+<button type="submit" style="width:100%;padding:15px;background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:#fff;border:none;border-radius:10px;font-size:1.2rem;font-weight:600;cursor:pointer;margin-top:20px">🚀 Create Library</button>
+</form>
+</div>
+</div>
+{% endblock %}
