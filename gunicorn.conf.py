@@ -1,6 +1,6 @@
 """
 Gunicorn Configuration
-Production WSGI server settings
+Production WSGI server settings - Optimized for Render deployment
 """
 
 import multiprocessing
@@ -10,12 +10,17 @@ import os
 bind = "0.0.0.0:8000"
 backlog = 2048
 
-# Worker processes
-workers = multiprocessing.cpu_count() * 2 + 1
+# Worker processes - Optimized for Render's Starter plan (512MB RAM)
+# Default to 2 workers (each uses ~50-100MB RAM)
+# Can override with WEB_CONCURRENCY environment variable
+workers = int(os.environ.get('WEB_CONCURRENCY', 2))
 worker_class = "sync"
 worker_connections = 1000
 timeout = 120
 keepalive = 2
+
+# Threads per worker (for better concurrency without memory overhead)
+threads = 2
 
 # Logging
 accesslog = "-"  # Log to stdout
@@ -51,6 +56,7 @@ graceful_timeout = 30
 def on_starting(server):
     """Called just before the master process is initialized"""
     print("Starting Kaluwala CSR Libraries...")
+    print(f"Workers: {workers}, Threads per worker: {threads}")
 
 def on_reload(server):
     """Called to recycle workers during a reload"""
