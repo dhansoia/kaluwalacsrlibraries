@@ -8,7 +8,7 @@ import io
 from datetime import datetime, date, timedelta
 from flask import make_response
 from models import db, Library, Seat, Booking, User, BookingStatus, SeatCategory, SystemSettings
-from sqlalchemy import func, and_, or_, extract
+from sqlalchemy import func, and_, or_, extract, cast, String
 
 class AnalyticsService:
     """Service class for analytics and reporting"""
@@ -115,11 +115,13 @@ class AnalyticsService:
     
     @staticmethod
     def get_monthly_bookings(library_id=None, months=6):
-        """Get monthly booking trends"""
+        """Get monthly booking trends - PostgreSQL compatible"""
         start_date = date.today() - timedelta(days=months * 30)
         
+        # Use PostgreSQL to_char instead of SQLite strftime
+        # Format: to_char(date_column, 'YYYY-MM')
         query = db.session.query(
-            func.strftime('%Y-%m', Booking.date).label('month'),
+            func.to_char(Booking.date, 'YYYY-MM').label('month'),
             func.count(Booking.id).label('count')
         ).filter(
             Booking.date >= start_date
@@ -291,11 +293,13 @@ class AnalyticsService:
     
     @staticmethod
     def get_peak_hours(library_id=None, days=30):
-        """Get peak booking hours"""
+        """Get peak booking hours - PostgreSQL compatible"""
         start_date = date.today() - timedelta(days=days)
         
+        # Use PostgreSQL to_char instead of SQLite strftime
+        # Format: to_char(time_column, 'HH24') for 24-hour format
         query = db.session.query(
-            func.strftime('%H', Booking.time_slot).label('hour'),
+            func.to_char(Booking.time_slot, 'HH24').label('hour'),
             func.count(Booking.id).label('count')
         ).filter(
             Booking.date >= start_date
