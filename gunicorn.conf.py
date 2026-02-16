@@ -1,6 +1,6 @@
 """
 Gunicorn Configuration
-Production WSGI server settings - Optimized for Render deployment
+Production WSGI server settings - Ultra-optimized for Render Starter (512MB RAM)
 """
 
 import multiprocessing
@@ -10,17 +10,16 @@ import os
 bind = "0.0.0.0:8000"
 backlog = 2048
 
-# Worker processes - Optimized for Render's Starter plan (512MB RAM)
-# Default to 2 workers (each uses ~50-100MB RAM)
-# Can override with WEB_CONCURRENCY environment variable
-workers = int(os.environ.get('WEB_CONCURRENCY', 2))
-worker_class = "sync"
+# Worker processes - Minimal for Render Starter plan (512MB RAM)
+# Using 1 worker with multiple threads is more memory efficient
+workers = int(os.environ.get('WEB_CONCURRENCY', 1))
+worker_class = "gthread"  # Use threaded workers instead of sync
 worker_connections = 1000
 timeout = 120
 keepalive = 2
 
-# Threads per worker (for better concurrency without memory overhead)
-threads = 2
+# Threads per worker (handles concurrent requests efficiently)
+threads = 4
 
 # Logging
 accesslog = "-"  # Log to stdout
@@ -39,24 +38,24 @@ user = None
 group = None
 tmp_upload_dir = None
 
-# SSL (if needed)
-# keyfile = "/path/to/keyfile"
-# certfile = "/path/to/certfile"
-
-# Preload app for better performance
+# Preload app for better performance and memory sharing
 preload_app = True
 
 # Restart workers periodically to prevent memory leaks
-max_requests = 1000
+max_requests = 500  # Reduced from 1000
 max_requests_jitter = 50
 
 # Graceful timeout for worker shutdown
 graceful_timeout = 30
 
+# Memory optimization - limit worker memory
+worker_tmp_dir = "/dev/shm"  # Use shared memory for tmp files
+
 def on_starting(server):
     """Called just before the master process is initialized"""
-    print("Starting Kaluwala CSR Libraries...")
+    print("Starting Kaluwala CSR Libraries (Memory-Optimized)...")
     print(f"Workers: {workers}, Threads per worker: {threads}")
+    print(f"Worker class: gthread (memory efficient)")
 
 def on_reload(server):
     """Called to recycle workers during a reload"""
