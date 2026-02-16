@@ -22,12 +22,13 @@ class Config:
     SQLALCHEMY_DATABASE_URI = database_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # SQLAlchemy Engine Options for PostgreSQL SSL and Connection Pooling
+    # SQLAlchemy Engine Options - Optimized for Render Starter (512MB RAM)
+    # Reduced connection pool to minimize memory usage
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_pre_ping': True,  # Verify connections before using
         'pool_recycle': 300,    # Recycle connections after 5 minutes
-        'pool_size': 10,        # Maximum number of connections
-        'max_overflow': 20,     # Maximum overflow connections
+        'pool_size': 2,         # Reduced from 10 to 2 connections
+        'max_overflow': 3,      # Reduced from 20 to 3 overflow connections
         'connect_args': {
             'connect_timeout': 10,
             'options': '-c statement_timeout=30000',  # 30 second query timeout
